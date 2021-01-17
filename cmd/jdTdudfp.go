@@ -33,7 +33,7 @@ func startJdTdudfp(cmd *cobra.Command, args []string) {
 	session := jd_seckill.NewSession(common.CookieJar)
 	err := session.CheckLoginStatus()
 	if err != nil {
-		log.Error("自动获取配置失败，请重新登录")
+		log.Error("自动获取配置失败，请重新启动")
 	} else {
 		log.Warn("开始自动获取配置，如长时间不动请结束进程，重新启动")
 		options := []chromedp.ExecAllocatorOption{

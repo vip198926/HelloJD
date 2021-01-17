@@ -1,12 +1,13 @@
 package cmd
 
 import (
+	"os"
+	"time"
+
 	"github.com/spf13/cobra"
 	"github.com/ztino/jd_seckill/common"
 	"github.com/ztino/jd_seckill/jd_seckill"
 	"github.com/ztino/jd_seckill/log"
-	"os"
-	"time"
 )
 
 func init() {
@@ -30,9 +31,9 @@ func startLogin(cmd *cobra.Command, args []string) {
 			return
 		}
 		user := jd_seckill.NewUser(common.Client, common.Config)
-		log.Info("登录成功")
+		log.Warn("登录成功")
 		userInfo, _ := user.GetUserInfo()
-		log.Info("用户:" + userInfo)
+		log.Warn("用户:" + userInfo)
 	} else {
 		//未登录
 		user := jd_seckill.NewUser(common.Client, common.Config)
@@ -54,9 +55,9 @@ func startLogin(cmd *cobra.Command, args []string) {
 			if status := user.RefreshStatus(); status == nil {
 				//保存cookie
 				_ = session.SaveCookieToFile("./cookie.txt")
-				log.Info("登录成功")
+				log.Warn("登录成功")
 				userInfo, _ := user.GetUserInfo()
-				log.Info("用户:" + userInfo)
+				log.Warn("用户:" + userInfo)
 			} else {
 				log.Error("登录失效")
 			}
