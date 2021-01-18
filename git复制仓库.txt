@@ -1,0 +1,50 @@
+复制存储库
+若要在不分叉的情况下复制存储库，可以运行特殊的克隆命令，然后镜像推送到新存储库。
+
+Mac
+窗户
+Linux
+在这篇文章中
+镜像存储库
+镜像包含 Git 大型文件存储对象的存储库
+镜像位于其他位置的存储库
+在复制存储库并推送到存储库的新副本或镜像之前，必须在 GitHub上创建新的存储库。在这些示例中，或是镜像。exampleuser/new-repositoryexampleuser/mirrored
+
+镜像存储库
+打开Git Bash.
+创建存储库的裸克隆。
+$ git clone --bare https://github.com/exampleuser/old-repository.git
+镜像推送到新存储库。
+$ cd old-repository.git
+$ git push --mirror https://github.com/vip198926/newhelloworld.git
+删除之前创建的临时本地存储库。
+$ cd ..
+$ rm -rf old-repository.git
+镜像包含 Git 大型文件存储对象的存储库
+打开Git Bash.
+创建存储库的裸克隆。将示例用户名替换为拥有存储库的人员或组织的名称，并用要复制的存储库的名称替换示例存储库名称。
+$ git clone --bare https://github.com/exampleuser/old-repository.git
+导航到刚刚克隆的存储库。
+$ cd old-repository.git
+拉取存储库的 Git 大型文件存储对象。
+$ git lfs fetch --all
+镜像推送到新存储库。
+$ git push --mirror https://github.com/exampleuser/new-repository.git
+将存储库的 Git 大型文件存储对象推送到镜像。
+$ git lfs push --all https://github.com/exampleuser/new-repository.git
+删除之前创建的临时本地存储库。
+$ cd ..
+$ rm -rf old-repository.git
+镜像位于其他位置的存储库
+如果要镜像其他位置的存储库（包括从原始位置获取更新），可以克隆镜像并定期推送更改。
+
+打开Git Bash.
+创建存储库的裸镜像克隆。
+$ git clone --mirror https://github.com/exampleuser/repository-to-mirror.git
+将推送位置设置为镜像。
+$ cd repository-to-mirror.git
+$ git remote set-url --push origin https://github.com/exampleuser/mirrored
+与裸克隆一样，镜像克隆包括所有远程分支和标记，但每次提取时都会覆盖所有本地引用，因此它将始终与原始存储库相同。设置推送 URL 可简化推送到镜像。要更新镜像，请获取更新并推送。
+
+$ git fetch -p origin
+$ git push --mirror
