@@ -23,7 +23,7 @@ buy_time = 2021-01-01 09:59:59
 seckill_time = 
 task_num =
 ticker_time = 
-default_user_agent = Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36
+default_user_agent = Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36
 
 [account]
 payment_pwd =
