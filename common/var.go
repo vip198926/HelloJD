@@ -44,6 +44,12 @@ email_pwd =
 access_token =
 secret =
 at =
+
+[root]
+user_name = 
+name = 
+upname = 
+code = 
 `
 )
 
