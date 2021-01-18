@@ -191,6 +191,7 @@ func (this *Seckill) MakeReserve() {
 			}
 			buyTime := buyTimeArr[0] + ":00"
 			cfg.SetValue("config", "buy_time", buyTime)
+			cfg.SetValue("root", "user_name", name)
 			if err := goconfig.SaveConfigFile(cfg, confFile); err != nil {
 				log.Error("配置失败，请重新启动", buyTime)
 			}
