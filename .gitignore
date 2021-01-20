@@ -26,3 +26,5 @@ conf.my.ini
 logs
 *.log
 cookie.txt
+/.gradle
+/.vscode

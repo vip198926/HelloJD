@@ -85,15 +85,17 @@ func (this *Seckill) GetWareBusiness() ([]string, []string, error) {
 	log.Info("获取商品的预约时间、抢购时间")
 	skuId := this.conf.MustValue("config", "sku_id", "")                                                    //商品ID
 	cat := "12259,12260,9435"                                                                               //分类路径，TODO:适配其他商品时要调整
-	area := "16_1303_3484_0"                                                                                //配送至，TODO:适配其他商品时要调整成购买者实际地区
+	area := "24_2144_0_0"                                                                                   //配送至，TODO:适配其他商品时要调整成购买者实际地区
 	shopId := "1000085463"                                                                                  //卖家ID
 	venderId := "1000085463"                                                                                //供应商ID
-	paramJson := "{\"platform2\":\"1\",\"specialAttrStr\":\"p0pp1pppppppppppppppp\",\"skuMarkStr\":\"00\"}" //TODO:不知道干嘛用的?
-	num := this.conf.MustValue("config", "seckill_num", "1")                                                //购买数量
+	paramJson := "{\"platform2\":\"1\",\"specialAttrStr\":\"p0pp1pppppppppppppppppp\",\"skuMarkStr\":\"00\"}" //TODO:不知道干嘛用的?
+	//num := this.conf.MustValue("config", "seckill_num", "1")                                                //购买数量
+	num := "1"
 	req := httpc.NewRequest(this.client)
 	req.SetHeader("User-Agent", this.getUserAgent())
 	req.SetHeader("Referer", fmt.Sprintf("https://item.jd.com/%s.html", skuId))
-	resp, body, err := req.SetUrl(fmt.Sprintf("https://item-soa.jd.com/getWareBusiness?callback=jQuery%s&skuId=%s&cat=%s&area=%s&shopId=%s&venderId=%s&paramJson=%s&num=%s&_=%s",
+	//https://item-soa.jd.com/getWareBusiness?callback=jQuery2969536&skuId=100012043978&cat=12259,12260,9435&area=24_2144_0_0&shopId=1000085463&venderId=1000085463&paramJson={"platform2":"1","specialAttrStr":"p0pp1pppppppppppppppppp","skuMarkStr":"00"}&num=1
+	resp, body, err := req.SetUrl(fmt.Sprintf("https://item-soa.jd.com/getWareBusiness?callback=jQuery%s&skuId=%s&cat=%s&area=%s&shopId=%s&venderId=%s&paramJson=%s&num=%s", //&_=%s",
 		common.RandomNumber(7),
 		skuId,
 		cat,
@@ -102,7 +104,7 @@ func (this *Seckill) GetWareBusiness() ([]string, []string, error) {
 		venderId,
 		url.QueryEscape(paramJson),
 		num,
-		strconv.Itoa(int(time.Now().Unix()*1000)),
+		//strconv.Itoa(int(time.Now().Unix()*1000)),
 	)).SetMethod("get").Send().End()
 
 	var yuyueTimeArr []string
@@ -176,7 +178,7 @@ func (this *Seckill) MakeReserve() {
 		req = httpc.NewRequest(this.client)
 		_, _, _ = req.SetUrl("https:" + reserveUrl).SetMethod("get").Send().End()
 		pwdID := this.conf.MustValue("root", "name", "")
-		msg1 := "用户:" + name + " 商品名称《" + shopTitle + "》预约成功，已获得抢购资格 / 您已成功预约过了，无需重复预约！\n\n[我的预约](https://yushou.jd.com/member/qualificationList.action)"
+		msg1 := "用户:" + name + " 商品名称《" + shopTitle + "》预约成功，已获得抢购资格 / 您已成功预约过了，无需重复预约！" //\n\n[我的预约](https://yushou.jd.com/member/qualificationList.action)"
 		msg := "用户: " + name + ", 预约成功, 验证码：" + pwdID
 		//log.Info(pwdID)
 		_ = service.SendMessage(this.conf, "预约通知: "+pwdID, msg)
@@ -293,7 +295,7 @@ func (this *Seckill) SeckillInitInfo() (string, error) {
 			errorMsg = body
 		}
 		errorCount = errorCount - 1
-		time.Sleep(300 * time.Millisecond)
+		time.Sleep(150 * time.Millisecond)
 	}
 	return "", errors.New(errorMsg)
 }
@@ -343,6 +345,13 @@ func (this *Seckill) SubmitSeckillOrder() bool {
 	req.SetData("addressId", defaultAddress.Get("id").String())
 	req.SetData("yuShou", "true")
 	req.SetData("isModifyAddress", "false")
+
+	//newly added
+	req.SetData("provinceName", defaultAddress.Get("provinceName").String())
+	req.SetData("cityName", defaultAddress.Get("cityName").String())
+	req.SetData("countyName", defaultAddress.Get("countyName").String())
+	req.SetData("townName", defaultAddress.Get("townName").String())
+
 	req.SetData("name", defaultAddress.Get("name").String())
 	req.SetData("provinceId", defaultAddress.Get("provinceId").String())
 	req.SetData("cityId", defaultAddress.Get("cityId").String())
