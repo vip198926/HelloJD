@@ -1,9 +1,78 @@
-2021-01-14 02:13:25.991	INFO	二维码获取成功，请打开京东APP扫描
-2021-01-14 02:13:26.338	WARN	Code: 201, Message: 二维码未扫描，请扫描二维码
-2021-01-14 02:13:28.450	WARN	Code: 201, Message: 二维码未扫描，请扫描二维码
-2021-01-14 02:13:30.578	WARN	Code: 201, Message: 二维码未扫描，请扫描二维码
-2021-01-14 02:14:58.660	INFO	初始化配置文件成功
-2021-01-14 02:14:59.415	INFO	二维码获取成功，请打开京东APP扫描
-2021-01-14 02:14:59.598	WARN	Code: 201, Message: 二维码未扫描，请扫描二维码
-2021-01-14 02:15:01.692	WARN	Code: 201, Message: 二维码未扫描，请扫描二维码
-2021-01-14 02:15:03.795	WARN	Code: 201, Message: 二维码未扫描，请扫描二维码
+{
+    "addressList": [{
+        "addressDetail": "马掌坡路绿地伊顿公馆a5a栋9楼904室",
+        "addressName": "家",
+        "areaCode": "86",
+        "cityId": 2144,
+        "cityName": "贵阳市",
+        "countyId": 3909,
+        "countyName": "白云区",
+        "defaultAddress": true,
+        "id": 1936232253,
+        "mobile": "156****7859",
+        "mobileKey": "2a9e43bc88ba5d6ca270c51edeca9231",
+        "name": "吴正益",
+        "overseas": 0,
+        "postCode": "",
+        "provinceId": 24,
+        "provinceName": "贵州",
+        "townId": 21111,
+        "townName": "艳山红社区",
+        "yuyueAddress": false
+    }],
+    "buyNum": 2,
+    "code": "200",
+    "freight": 0,
+    "invoiceInfo": {
+        "invoiceCode": "",
+        "invoiceCompany": "",
+        "invoiceContentType": 1,
+        "invoicePhone": "156****7859",
+        "invoicePhoneKey": "2a9e43bc88ba5d6ca270c51edeca9231",
+        "invoiceTitle": 4,
+        "invoiceType": 3
+    },
+    "paymentTypeList": [{
+        "paymentId": 4,
+        "paymentName": "在线支付"
+    }],
+    "seckillSkuVO": {
+        "attachs": [],
+        "color": "飞天 53%vol 500ml 贵州茅台酒",
+        "extMap": {
+            "YuShou": "1",
+            "is7ToReturn": "0",
+            "new7ToReturn": "8",
+            "thwa": "0",
+            "SoldOversea": "0"
+        },
+        "gifts": [{
+            "num": 1,
+            "sku": "100012070992",
+            "skuName": "53°飞天茅台酒礼品袋",
+            "type": 2
+        }],
+        "height": 0.0,
+        "jdPrice": 2998.00,
+        "length": 0.0,
+        "num": 2,
+        "rePrice": 0.00,
+        "size": "",
+        "skuId": 100012043978,
+        "skuImgUrl": "jfs/t1/97097/12/15694/245806/5e7373e6Ec4d1b0ac/9d8c13728cc2544d.jpg",
+        "skuName": "飞天 53%vol  500ml 贵州茅台酒（带杯）",
+        "skuPrice": 1499.00,
+        "thirdCategoryId": 0.0,
+        "venderName": "京东自营",
+        "venderType": 0,
+        "weight": 1.120,
+        "width": 0.0
+    },
+    "shipmentParam": {
+        "shipmentTimeType": 3,
+        "shipmentTimeTypeName": "工作日、双休日与假期均可送货",
+        "shipmentType": 65,
+        "shipmentTypeName": "京东配送"
+    },
+    "token": "c1112e1a5b6cbfb82b660f3e0ee5e717"
+}

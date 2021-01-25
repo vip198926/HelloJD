@@ -87,14 +87,15 @@ func startSeckill(cmd *cobra.Command, args []string) {
 			log.Warn("立即开始抢购..")
 		}
 
-		//提前获取秒杀初始化信息，提高效率，待测试
-		log.Warn("提前获取秒杀初始化信息..")
-		initInfo, _ := seckill.SeckillInitInfo()
-		seckill.SetInitInfo(initInfo)
-
+		////提前获取秒杀初始化信息，提高效率，待测试
+		//log.Warn("提前获取秒杀初始化信息..")
+		//initInfo, _ := seckill.SeckillInitInfo()
+		//seckill.SetInitInfo(initInfo)
 		//开启抢购任务,第二个参数为开启几个协程
 		//怕封号的可以减少协程数量,相反抢到的成功率也减低了
 		//抢购任务数读取配置文件
+		time.Sleep(100 * time.Millisecond) //add 错开整点抢购
+
 		str := common.Config.MustValue("config", "task_num", "5")
 		taskNum, _ := strconv.Atoi(str)
 		Start(seckill, taskNum)
@@ -122,7 +123,7 @@ func Start(seckill *jd_seckill.Seckill, taskNum int) {
 		}
 		//怕封号的可以增加间隔时间,相反抢到的成功率也减低了
 		duration := rand.Intn(tickerTime) + tickerTime
-		log.Info("等待 ", duration, "ms 后重试")
+		log.Info("等待 ", duration, "ms 开始下一轮冲锋")
 		time.Sleep(time.Duration(duration) * time.Millisecond)
 	}
 	log.Warn("抢购结束，明日再战！")
@@ -130,13 +131,16 @@ func Start(seckill *jd_seckill.Seckill, taskNum int) {
 
 func task(seckill *jd_seckill.Seckill) {
 	seckill.RequestSeckillUrl()
+	time.Sleep(200 * time.Millisecond)
 	seckill.SeckillPage()
+	time.Sleep(200 * time.Millisecond)
 	flag := seckill.SubmitSeckillOrder()
 	//提前抢购成功的,直接结束程序
 	if flag {
 		//通知管道
 		common.SeckillStatus <- true
 	}
+	time.Sleep(200 * time.Millisecond)
 }
 
 func CheckSeckillStatus() {
@@ -150,8 +154,8 @@ func CheckSeckillStatus() {
 }
 
 func KeepSession(user *jd_seckill.User) {
-	//每10分钟检测一次
-	t := time.NewTicker(10 * time.Minute)
+	//每30分钟检测一次
+	t := time.NewTicker(30 * time.Minute)
 	for {
 		select {
 		case <-t.C:

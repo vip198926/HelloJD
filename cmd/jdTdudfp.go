@@ -37,7 +37,7 @@ func startJdTdudfp(cmd *cobra.Command, args []string) {
 	} else {
 		log.Warn("开始自动获取配置，如长时间不动请结束进程，重新启动")
 		options := []chromedp.ExecAllocatorOption{
-			chromedp.Flag("headless", true),                        //debug使用
+			chromedp.Flag("headless", false),                        //debug使用
 			chromedp.Flag("mute-audio", true),                      //静音
 			chromedp.Flag("blink-settings", "imagesEnabled=false"), //禁用图片加载
 			chromedp.Flag("start-maximized", true),                 //最大化窗口

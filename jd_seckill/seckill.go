@@ -27,7 +27,7 @@ type Seckill struct {
 }
 
 var name string
-
+var killUrl string
 func NewSeckill(client *httpc.HttpClient, conf *goconfig.ConfigFile) *Seckill {
 	return &Seckill{client: client, conf: conf, initInfo: ""}
 }
@@ -43,7 +43,9 @@ func (this *Seckill) GetInitInfo() string {
 func (this *Seckill) getUserAgent() string {
 	return this.conf.MustValue("config", "default_user_agent", "")
 }
-
+/*
+访问商品详情
+ */
 func (this *Seckill) SkuTitle() (string, error) {
 	skuId := this.conf.MustValue("config", "sku_id", "")
 	req := httpc.NewRequest(this.client)
@@ -56,7 +58,9 @@ func (this *Seckill) SkuTitle() (string, error) {
 	doc, _ := goquery.NewDocumentFromReader(html)
 	return strings.TrimSpace(doc.Find(".sku-name").Text()), nil
 }
-
+/*
+获取本地时间与京东云端时间差
+ */
 func (this *Seckill) GetDiffTime() (int64, int64) {
 	log.Info("获取本地时间与京东云端时间差")
 	localTime := time.Now().UnixNano() / 1e6
@@ -80,7 +84,9 @@ func (this *Seckill) GetDiffTime() (int64, int64) {
 
 	return diffTime, delayTime
 }
-
+/*
+获取商品的预约时间、抢购时间
+ */
 func (this *Seckill) GetWareBusiness() ([]string, []string, error) {
 	log.Info("获取商品的预约时间、抢购时间")
 	skuId := this.conf.MustValue("config", "sku_id", "")                                                    //商品ID
@@ -95,7 +101,7 @@ func (this *Seckill) GetWareBusiness() ([]string, []string, error) {
 	req.SetHeader("User-Agent", this.getUserAgent())
 	req.SetHeader("Referer", fmt.Sprintf("https://item.jd.com/%s.html", skuId))
 	//https://item-soa.jd.com/getWareBusiness?callback=jQuery2969536&skuId=100012043978&cat=12259,12260,9435&area=24_2144_0_0&shopId=1000085463&venderId=1000085463&paramJson={"platform2":"1","specialAttrStr":"p0pp1pppppppppppppppppp","skuMarkStr":"00"}&num=1
-	resp, body, err := req.SetUrl(fmt.Sprintf("https://item-soa.jd.com/getWareBusiness?callback=jQuery%s&skuId=%s&cat=%s&area=%s&shopId=%s&venderId=%s&paramJson=%s&num=%s", //&_=%s",
+	resp, body, err := req.SetUrl(fmt.Sprintf("https://item-soa.jd.com/getWareBusiness?callback=jQuery%s&skuId=%s&cat=%s&area=%s&shopId=%s&venderId=%s&paramJson=%s&num=%s&=%s",
 		common.RandomNumber(7),
 		skuId,
 		cat,
@@ -104,7 +110,7 @@ func (this *Seckill) GetWareBusiness() ([]string, []string, error) {
 		venderId,
 		url.QueryEscape(paramJson),
 		num,
-		//strconv.Itoa(int(time.Now().Unix()*1000)),
+		strconv.Itoa(int(time.Now().Unix()*1000)),
 	)).SetMethod("get").Send().End()
 
 	var yuyueTimeArr []string
@@ -129,7 +135,9 @@ func (this *Seckill) GetWareBusiness() ([]string, []string, error) {
 
 	return yuyueTimeArr, buyTimeArr, nil
 }
-
+/*
+预约商品
+ */
 func (this *Seckill) MakeReserve() {
 	yuyueTimeArr, buyTimeArr, err := this.GetWareBusiness()
 	if err == nil && len(yuyueTimeArr) == 2 {
@@ -156,16 +164,19 @@ func (this *Seckill) MakeReserve() {
 		log.Warn("预约起始时间获取失败，立即尝试预约：", err, yuyueTimeArr)
 	}
 
+	time.Sleep(500 * time.Millisecond)
 	user := NewUser(this.client, this.conf)
 	userInfo, _ := user.GetUserInfo()
 	log.Info("用户:" + userInfo)
 	name = userInfo
+	time.Sleep(500 * time.Millisecond)
 	shopTitle, err := this.SkuTitle()
 	if err != nil {
 		log.Error("获取商品信息失败")
 	} else {
 		log.Debug("商品名称:" + shopTitle)
 	}
+	time.Sleep(500 * time.Millisecond)
 	skuId := this.conf.MustValue("config", "sku_id", "")
 	req := httpc.NewRequest(this.client)
 	req.SetHeader("User-Agent", this.getUserAgent())
@@ -203,13 +214,16 @@ func (this *Seckill) MakeReserve() {
 		}
 	}
 }
-
+/*
+获取抢购链接
+ */
 func (this *Seckill) getSeckillUrl() (string, error) {
 	skuId := this.conf.MustValue("config", "sku_id", "")
 	req := httpc.NewRequest(this.client)
 	req.SetHeader("User-Agent", this.getUserAgent())
 	req.SetHeader("Host", "itemko.jd.com")
 	req.SetHeader("Referer", fmt.Sprintf("https://item.jd.com/%s.html", skuId))
+	          //https://itemko.jd.com/itemShowBtn?skuId=100012043978&callback=jsonp1611540173543&_=1611540175420
 	req.SetUrl("https://itemko.jd.com/itemShowBtn?callback=jQuery" + strconv.Itoa(common.Rand(1000000, 9999999)) + "&skuId=" + skuId + "&from=pc&_=" + strconv.Itoa(int(time.Now().Unix()*1000))).SetMethod("get")
 	url := ""
 	for {
@@ -219,17 +233,20 @@ func (this *Seckill) getSeckillUrl() (string, error) {
 			break
 		}
 		log.Error("抢购链接获取失败，稍后自动重试")
-		time.Sleep(300 * time.Millisecond)
+		time.Sleep(450 * time.Millisecond)
 	}
 	url = "https:" + url
-	//https://divide.jd.com/user_routing?skuId=8654289&sn=c3f4ececd8461f0e4d7267e96a91e0e0&from=pc
+	//https://divide.jd.com/user_routing?skuId=100012043978&sn=4c8cd7b0163afc72bef91779b526f158&from=pc&rid=0.3595837166197592
+	//https://marathon.jd.com/captcha.html?rid=0.3595837166197592&from=pc&skuId=100012043978&sn=4c8cd7b0163afc72bef91779b526f158
 	url = strings.ReplaceAll(url, "divide", "marathon")
-	//https://marathon.jd.com/captcha.html?skuId=8654289&sn=c3f4ececd8461f0e4d7267e96a91e0e0&from=pc
 	url = strings.ReplaceAll(url, "user_routing", "captcha.html")
 	log.Println("抢购链接获取成功:" + url)
+	time.Sleep(100 * time.Millisecond)
 	return url, nil
 }
-
+/*
+	请求秒杀网址
+ */
 func (this *Seckill) RequestSeckillUrl() {
 	user := NewUser(this.client, this.conf)
 	userInfo, _ := user.GetUserInfo()
@@ -254,7 +271,9 @@ func (this *Seckill) RequestSeckillUrl() {
 	req.SetHeader("Referer", fmt.Sprintf("https://item.jd.com/%s.html", skuId))
 	_, _, _ = req.SetUrl(url).SetMethod("get").Send().End()
 }
-
+/*
+访问抢购订单结算页面
+ */
 func (this *Seckill) SeckillPage() {
 	log.Info("访问抢购订单结算页面...")
 	skuId := this.conf.MustValue("config", "sku_id", "")
@@ -268,9 +287,13 @@ func (this *Seckill) SeckillPage() {
 	req.SetHeader("User-Agent", this.getUserAgent())
 	req.SetHeader("Host", "marathon.jd.com")
 	req.SetHeader("Referer", fmt.Sprintf("https://item.jd.com/%s.html", skuId))
-	_, _, _ = req.SetUrl("https://marathon.jd.com/seckill/seckill.action?skuId=" + skuId + "&num=" + seckillNum + "&rid=" + strconv.Itoa(int(time.Now().Unix()))).SetMethod("get").Send().End()
+		     //https://marathon.jd.com/seckill/seckill.action?skuId=100012043978&num=1&rid=1611540605
+	killUrl = "https://marathon.jd.com/seckill/seckill.action?skuId=" + skuId + "&num=" + seckillNum + "&rid=" + strconv.Itoa(int(time.Now().Unix()))
+	_, _, _ = req.SetUrl(killUrl).SetMethod("get").Send().End()
 }
-
+/*
+获取秒杀初始化信息
+ */
 func (this *Seckill) SeckillInitInfo() (string, error) {
 	log.Info("获取秒杀初始化信息...")
 	skuId := this.conf.MustValue("config", "sku_id", "")
@@ -278,12 +301,15 @@ func (this *Seckill) SeckillInitInfo() (string, error) {
 	req := httpc.NewRequest(this.client)
 	req.SetHeader("User-Agent", this.getUserAgent())
 	req.SetHeader("Host", "marathon.jd.com")
+	req.SetHeader("Referer",fmt.Sprintf(killUrl)) //add
 	req.SetData("sku", skuId)
 	req.SetData("num", seckillNum)
 	req.SetData("isModifyAddress", "false")
 	req.SetUrl("https://marathon.jd.com/seckillnew/orderService/pc/init.action").SetMethod("post")
+
 	//尝试获取三次
-	errorCount := 3
+	//三次太频繁改为1次
+	errorCount := 1
 	errorMsg := ""
 	for errorCount > 0 {
 		_, body, _ := req.Send().End()
@@ -291,15 +317,18 @@ func (this *Seckill) SeckillInitInfo() (string, error) {
 			log.Warn("获取秒杀初始化信息成功,返回信息:" + body)
 			return body, nil
 		} else {
-			log.Error("获取秒杀初始化信息失败,返回信息:" + body)
+			//log.Error("获取秒杀初始化信息失败,返回信息:" + body)
+			log.Error("获取秒杀初始化信息失败,返回信息: [html 页面]")
 			errorMsg = body
 		}
 		errorCount = errorCount - 1
-		time.Sleep(150 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond)
 	}
 	return "", errors.New(errorMsg)
 }
-
+/*
+提交秒杀订单
+ */
 func (this *Seckill) SubmitSeckillOrder() bool {
 	eid := this.conf.MustValue("config", "eid", "")
 	fp := this.conf.MustValue("config", "fp", "")
@@ -313,12 +342,12 @@ func (this *Seckill) SubmitSeckillOrder() bool {
 	}
 	if this.initInfo == "" {
 		log.Error(fmt.Sprintf("抢购失败，无法获取生成订单的基本信息，接口返回:【%s】", this.initInfo))
-		return false
+		//return false //尝试没有基本信息也提交订单
 	}
 	address := gjson.Get(this.initInfo, "addressList").Array()
 	if !gjson.Get(this.initInfo, "addressList").Exists() || len(address) < 1 {
 		log.Error("抢购失败，解析收货地址失败，初始化信息:" + this.initInfo)
-		return false
+		//return false   //尝试没有基本信息也提交订单
 	}
 	defaultAddress := address[0]
 	isinvoiceInfo := gjson.Get(this.initInfo, "invoiceInfo").Exists()
@@ -347,10 +376,10 @@ func (this *Seckill) SubmitSeckillOrder() bool {
 	req.SetData("isModifyAddress", "false")
 
 	//newly added
-	req.SetData("provinceName", defaultAddress.Get("provinceName").String())
-	req.SetData("cityName", defaultAddress.Get("cityName").String())
-	req.SetData("countyName", defaultAddress.Get("countyName").String())
-	req.SetData("townName", defaultAddress.Get("townName").String())
+	//req.SetData("provinceName", defaultAddress.Get("provinceName").String())
+	//req.SetData("cityName", defaultAddress.Get("cityName").String())
+	//req.SetData("countyName", defaultAddress.Get("countyName").String())
+	//req.SetData("townName", defaultAddress.Get("townName").String())
 
 	req.SetData("name", defaultAddress.Get("name").String())
 	req.SetData("provinceId", defaultAddress.Get("provinceId").String())
@@ -388,7 +417,7 @@ func (this *Seckill) SubmitSeckillOrder() bool {
 	}
 
 	if !gjson.Valid(body) {
-		log.Debug(body)
+		//log.Debug(body)
 		//尝试解析html中的错误信息
 		html := strings.NewReader(body)
 		if doc, err := goquery.NewDocumentFromReader(html); err == nil {
