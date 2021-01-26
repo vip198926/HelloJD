@@ -342,12 +342,12 @@ func (this *Seckill) SubmitSeckillOrder() bool {
 	}
 	if this.initInfo == "" {
 		log.Error(fmt.Sprintf("抢购失败，无法获取生成订单的基本信息，接口返回:【%s】", this.initInfo))
-		//return false //尝试没有基本信息也提交订单
+		return false //尝试没有基本信息也提交订单
 	}
 	address := gjson.Get(this.initInfo, "addressList").Array()
 	if !gjson.Get(this.initInfo, "addressList").Exists() || len(address) < 1 {
 		log.Error("抢购失败，解析收货地址失败，初始化信息:" + this.initInfo)
-		//return false   //尝试没有基本信息也提交订单
+		return false   //尝试没有基本信息也提交订单
 	}
 	defaultAddress := address[0]
 	isinvoiceInfo := gjson.Get(this.initInfo, "invoiceInfo").Exists()
